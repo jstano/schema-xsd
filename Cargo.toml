@@ -1,0 +1,10 @@
+[package]
+name = "schema-xsd"
+version = "1.0.0"
+edition = "2024"
+authors = ["Jeff Stano <jeff@stano.com>"]
+description = "XSD schema definitions for the schema library XML formats"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/jstano/schema-xsd"
+keywords = ["schema", "xsd", "xml", "database"]
+include = ["src/**/*", "schema.xsd", "changeset.xsd"]
