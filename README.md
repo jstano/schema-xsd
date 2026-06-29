@@ -1,13 +1,12 @@
 # schema-xsd
 
-XSD schema definitions for describing database structures and incremental migrations.
+XSD schema definitions for describing database structures.
 
 ## Overview
 
-This library provides two XML Schema Definition (XSD) files that establish a common vocabulary for database-as-code tooling:
+This library provides an XML Schema Definition (XSD) file that establishes a common vocabulary for database-as-code tooling:
 
 - **`schema.xsd`** — defines a complete database structure (tables, columns, keys, relations, views, functions, procedures, enums, and vendor-specific SQL)
-- **`changeset.xsd`** — defines incremental migration operations (add/drop/rename for tables, columns, keys, constraints, relations, and views)
 
 Supported databases: H2, PostgreSQL, SQLite, SQL Server.
 
@@ -19,7 +18,7 @@ The library is available as both a Maven artifact (XSDs bundled as JAR resources
 
 **Gradle:**
 ```kotlin
-implementation("com.stano:schema-xsd:1.0.0-SNAPSHOT")
+implementation("com.stano:schema-xsd:1.0.0")
 ```
 
 **Maven:**
@@ -27,13 +26,13 @@ implementation("com.stano:schema-xsd:1.0.0-SNAPSHOT")
 <dependency>
     <groupId>com.stano</groupId>
     <artifactId>schema-xsd</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 Access the XSD files from the JAR classpath:
 ```java
-InputStream schema    = getClass().getResourceAsStream("/schema.xsd");
+InputStream schema = getClass().getResourceAsStream("/schema.xsd");
 ```
 
 ### Rust
@@ -46,11 +45,10 @@ schema-xsd = "1.0.0"
 
 **Usage:**
 ```rust
-use schema_xsd::{SCHEMA_XSD, CHANGESET_XSD};
+use schema_xsd::SCHEMA_XSD;
 
-// Both constants are &'static str containing the full XSD content
+// Constant is &'static str containing the full XSD content
 println!("{}", SCHEMA_XSD);
-println!("{}", CHANGESET_XSD);
 ```
 
 ## Schema Overview
@@ -65,17 +63,6 @@ Defines a `<database>` root element containing:
 - **Functions / Procedures** — vendor-specific SQL implementations
 - **Enums** — custom enumeration types with values and codes
 - **Vendor SQL** — arbitrary SQL blocks run at the top or bottom of generated scripts
-
-### `changeset.xsd`
-
-Defines a `<changeset>` root element containing ordered migration operations:
-
-- `add-table` / `drop-table` / `rename-table`
-- `add-column` / `drop-column` / `rename-column` / `modify-column`
-- `add-key` / `drop-key`
-- `add-constraint` / `drop-constraint`
-- `add-relation` / `drop-relation`
-- `add-view` / `drop-view`
 
 ## License
 
