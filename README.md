@@ -34,7 +34,6 @@ implementation("com.stano:schema-xsd:1.0.0-SNAPSHOT")
 Access the XSD files from the JAR classpath:
 ```java
 InputStream schema    = getClass().getResourceAsStream("/schema.xsd");
-InputStream changeset = getClass().getResourceAsStream("/changeset.xsd");
 ```
 
 ### Rust
