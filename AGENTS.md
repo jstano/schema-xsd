@@ -34,9 +34,8 @@ cargo publish        # publish to crates.io
 ### Java / Gradle
 ```bash
 ./gradlew build              # compile and package JAR
-./gradlew publishToMavenLocal  # install to ~/.m2
-./gradlew publish            # publish to staging-deploy/
-./gradlew zipStagingDeploy   # zip staging artifacts for upload
+./gradlew publishToMavenLocal   # install to ~/.m2
+./gradlew publishToMavenCentral # publish to Maven Central
 ```
 
 ## Making Changes
