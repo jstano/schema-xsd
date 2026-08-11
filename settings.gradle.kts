@@ -1,3 +1,5 @@
+rootProject.name = "schema-xsd"
+
 pluginManagement {
   repositories {
     mavenLocal()
@@ -6,10 +8,8 @@ pluginManagement {
 }
 
 plugins {
-  id("com.stano.settings") version "0.1.8"
+  id("com.stano.settings") version "0.1.11"
 }
-
-rootProject.name = "schema-xsd"
 
 dependencyResolutionManagement {
   repositories {
