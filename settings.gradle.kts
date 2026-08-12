@@ -8,12 +8,5 @@ pluginManagement {
 }
 
 plugins {
-  id("com.stano.settings") version "0.1.11"
-}
-
-dependencyResolutionManagement {
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
+  id("com.stano.settings") version "0.1.12"
 }
