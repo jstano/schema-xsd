@@ -92,6 +92,7 @@
                   </element>
                 </sequence>
                 <attribute name="cluster" type="boolean" default="false"/>
+                <attribute name="where" type="string" default=""/>
               </complexType>
             </element>
 
@@ -107,6 +108,7 @@
                 <attribute name="include" type="string" default=""/>
                 <attribute name="compress" type="boolean" default="false"/>
                 <attribute name="unique" type="boolean" default="false"/>
+                <attribute name="where" type="string" default=""/>
               </complexType>
             </element>
           </sequence>
