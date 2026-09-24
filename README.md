@@ -18,7 +18,7 @@ The library is available as both a Maven artifact (XSDs bundled as JAR resources
 
 **Gradle:**
 ```kotlin
-implementation("com.stano:schema-xsd:1.0.0")
+implementation("com.stano:schema-xsd:1.1.0")
 ```
 
 **Maven:**
@@ -26,7 +26,7 @@ implementation("com.stano:schema-xsd:1.0.0")
 <dependency>
     <groupId>com.stano</groupId>
     <artifactId>schema-xsd</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -40,7 +40,7 @@ InputStream schema = getClass().getResourceAsStream("/schema.xsd");
 **`Cargo.toml`:**
 ```toml
 [dependencies]
-schema-xsd = "1.0.0"
+schema-xsd = "1.1.0"
 ```
 
 **Usage:**
@@ -57,7 +57,7 @@ println!("{}", SCHEMA_XSD);
 
 Defines a `<database>` root element containing:
 
-- **Tables** — columns (with types, lengths, defaults, generated values, enum references), primary keys, unique constraints, indexes, foreign key relations, triggers, named constraints, and aggregations
+- **Tables** — columns (with types, lengths, defaults, generated values, enum references), primary keys, unique constraints, indexes, foreign key relations (including composite/multi-column foreign keys), triggers, named constraints, and aggregations
 - **Column types** — sequence, byte, short, int, long, float, double, decimal, boolean, date, time, datetime, timestamp, timestamptz, char, varchar, enum, text, citext, cstext, binary, uuid, json, array
 - **Views** — named SQL views with per-database-type variants
 - **Functions / Procedures** — vendor-specific SQL implementations

@@ -115,7 +115,7 @@
 
       <element name="relations" minOccurs="0" maxOccurs="1">
         <complexType>
-          <sequence minOccurs="1" maxOccurs="unbounded">
+          <choice minOccurs="1" maxOccurs="unbounded">
             <element name="relation">
               <complexType>
                 <attribute name="src" type="string" use="required"/>
@@ -125,7 +125,25 @@
                 <attribute name="disableUsageChecking" type="boolean"/>
               </complexType>
             </element>
-          </sequence>
+
+            <!-- Composite (multi-column) foreign key: each <column> pairs one local column
+                 (src) with the column it maps to on the target table (name). -->
+            <element name="compositeRelation">
+              <complexType>
+                <sequence minOccurs="2" maxOccurs="unbounded">
+                  <element name="column">
+                    <complexType>
+                      <attribute name="src" type="string" use="required"/>
+                      <attribute name="name" type="string" use="required"/>
+                    </complexType>
+                  </element>
+                </sequence>
+                <attribute name="table" type="string" use="required"/>
+                <attribute name="type" type="database:relationTypeEnum" use="required"/>
+                <attribute name="disableUsageChecking" type="boolean"/>
+              </complexType>
+            </element>
+          </choice>
         </complexType>
       </element>
 
