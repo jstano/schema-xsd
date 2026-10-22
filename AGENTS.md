@@ -4,23 +4,22 @@ Instructions for AI agents working in this repository.
 
 ## Project Summary
 
-This repo contains exactly two XSD files (`schema.xsd`, `changeset.xsd`) and thin wrappers that ship them to two ecosystems:
+This repo contains exactly one XSD file (`schema.xsd`) and thin wrappers that ship it to two ecosystems:
 
-- **Rust** (`src/lib.rs`) — embeds both XSDs as `pub const &str` via `include_str!`
-- **Java/Maven** (`build.gradle.kts`) — bundles the XSD files as JAR classpath resources under `com.stano:schema-xsd`
+- **Rust** (`src/lib.rs`) — embeds the XSD as a `pub const &str` via `include_str!`
+- **Java/Maven** (`build.gradle.kts`) — bundles the XSD file as a JAR classpath resource under `com.stano:schema-xsd`
 
-There is no application logic here. All real work is editing the XSD files.
+There is no application logic here. All real work is editing the XSD file.
 
 ## Key Files
 
 | File | Purpose |
 |---|---|
 | `schema.xsd` | Defines the full database structure format (`<database>`, tables, columns, keys, relations, views, etc.) |
-| `changeset.xsd` | Defines the migration/changeset format (add/drop/rename operations) |
-| `src/lib.rs` | Rust crate entry point — only exposes `SCHEMA_XSD` and `CHANGESET_XSD` constants |
-| `build.gradle.kts` | Gradle build — packages XSDs into a JAR and configures Maven publishing |
+| `src/lib.rs` | Rust crate entry point — only exposes the `SCHEMA_XSD` constant |
+| `build.gradle.kts` | Gradle build — packages the XSD into a JAR and configures Maven publishing |
 | `Cargo.toml` | Rust crate metadata |
-| `gradle.properties` | Maven group and version (`com.stano`, `1.1.0`) |
+| `gradle.properties` | Maven group and version (`com.stano`, `1.2.0`) |
 
 ## Build Commands
 
@@ -40,7 +39,7 @@ cargo publish        # publish to crates.io
 
 ## Making Changes
 
-**To add or modify schema elements:** edit `schema.xsd` or `changeset.xsd` directly. Both build systems pick up changes automatically — no code changes needed unless the XSD file names change.
+**To add or modify schema elements:** edit `schema.xsd` directly. Both build systems pick up changes automatically — no code changes needed unless the XSD file names change.
 
 **To rename an XSD file:** update the filename, then update `src/lib.rs` (`include_str!` path), `build.gradle.kts` (`include("*.xsd")` covers any `.xsd`), and any documentation.
 
