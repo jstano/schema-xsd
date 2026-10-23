@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database">
+  <table name="T">
+    <columns><column name="Amount" type="decimal" length="10" scale="2" minValue="1e5"/></columns>
+  </table>
+</database>

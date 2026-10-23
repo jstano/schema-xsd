@@ -69,8 +69,8 @@
                 <attribute name="generated" type="string"/>
                 <attribute name="enumType" type="string"/>
                 <attribute name="elementType" type="database:columnEnum"/>
-                <attribute name="minValue" type="double"/>
-                <attribute name="maxValue" type="double"/>
+                <attribute name="minValue" type="decimal"/>
+                <attribute name="maxValue" type="decimal"/>
               </complexType>
               <!-- XSD 1.0 skips elements with no databaseType, so this only stops duplicate
                    database-specific checks; a second generic check is not caught. -->
