@@ -32,7 +32,7 @@
 - [ ] 13. **Vendor-neutral SQL fragments cannot vary per database.** These are `column@default`, `@generated`, `check`, `index@where`/`@include`, unique `@where`, and aggregate `@criteria`. `index@include` is a comma-separated string, not a list of column elements.
 - [x] 14. **Empty-string defaults** (`where=""`, `include=""`) are meaningless. Drop them.
 - [x] 15. **The `schema` child duplicates the 6-way choice** from `database` (lines 11-34). Factor it into a named `xs:group`.
-- [ ] 16. **Relation actions are underspecified.** `relationTypeEnum` (cascade|enforce|setnull|donothing) has no `onUpdate`. The difference between `enforce` and `donothing` is undocumented.
+- [ ] 16. (documented in schema.xsd; no onUpdate or renames yet) **Relation actions are underspecified.** `relationTypeEnum` (cascade|enforce|setnull|donothing) has no `onUpdate`. The difference between `enforce` and `donothing` is undocumented.
 - [ ] 17. **Only one comment in the whole file.** Add `xs:annotation/xs:documentation` for the non-obvious attributes: `data`, `noExport`, `exportDataColumn`, `lockEscalation`, `disableUsageChecking`, `generated`, and the `sequence`/`longsequence`/`cstext` types.
 - [ ] 18. **Triggers**: only `update` and `delete` are allowed, with no `insert` and no name. The `minOccurs`/`maxOccurs` inside the unbounded `choice` is redundant.
 

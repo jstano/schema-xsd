@@ -368,6 +368,17 @@
     </restriction>
   </simpleType>
 
+  <!-- What happens to child rows when the referenced (parent) row is deleted, i.e. the ON DELETE
+       action. There is no ON UPDATE action. Applies to relation and compositeRelation, in both
+       foreignKeyMode="relations" (FOREIGN KEY constraint) and "triggers" (generated triggers).
+         cascade   - delete the child rows (ON DELETE CASCADE).
+         enforce   - reject the delete while child rows exist, and require inserted/updated child
+                     values to exist in the parent. FK constraint with the default action.
+         setnull   - set the child columns to null (ON DELETE SET NULL). Invalid if the child
+                     column is required.
+         donothing - no integrity enforcement: no FOREIGN KEY constraint and no triggers. The
+                     relation only documents the link (e.g. for diagrams).
+       SET DEFAULT is not supported. -->
   <simpleType name="relationTypeEnum">
     <restriction base="string">
       <enumeration value="cascade"/>
