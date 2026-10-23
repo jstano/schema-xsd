@@ -20,7 +20,8 @@
 - [x] 3. **`keys` forces a `primary`** (line 72, minOccurs=1). A table with only indexes or uniques must still declare a primary key. Check that this is intended.
   - Done in the XSD: `primary` is now `minOccurs="0"`, so a table can declare only unique or index keys. Documents that validated before still validate. Requiring a primary key is a policy for a linter or generator, not the schema.
   - TODO downstream: `schema-java` and `schema-rs` have not been updated. Check that their parsers, models and SQL generators tolerate a table with no primary key (no NPE/panic on a missing `primary`). Also note that `cluster` lives on `primary`, so keyless tables cannot be clustered.
-- [ ] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
+- [x] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
+  - Done in the XSD: `length`/`scale` are now `nonNegativeInteger`. XSD 1.0 cannot express the conditional rules (enum needs `enumType`, array needs `elementType`, decimal needs `length`), so they are documented in a comment above the column attributes. Enforcing them would need XSD 1.1 `xs:assert`, which xmllint does not support.
 - [ ] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
 - [ ] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
 - [x] 7. **Redundant nested repeats**: `columns > sequence(1..*) > column(1..*)` and the same for key columns. The extra wrapper adds nothing. Remove the outer `sequence` repeat.
@@ -49,7 +50,8 @@
 - [ ] 1. Safe tightenings (1, 2, 7, 9, 14, 15). These are mostly non-breaking, though 1 and 2 reject some currently-valid documents.
 - [ ] 2. Decide on the content-model questions (3, 6, 12, 16), which are breaking and need your intent.
 - [ ] 3. Add identity constraints (5) and documentation (17).
-- [ ] 4. Fix the AGENTS.md drift and bump the version in `gradle.properties` and `Cargo.toml` if the schema changes.
+- [x] 4. Fix the AGENTS.md drift and bump the version in `gradle.properties` and `Cargo.toml` if the schema changes.
+  - Done in the XSD: `length`/`scale` are now `nonNegativeInteger`. XSD 1.0 cannot express the conditional rules (enum needs `enumType`, array needs `elementType`, decimal needs `length`), so they are documented in a comment above the column attributes. Enforcing them would need XSD 1.1 `xs:assert`, which xmllint does not support.
 
 ## Verification (when implementing)
 - `xmllint --noout --schema schema.xsd <sample.xml>` against the downstream sample documents, for example in `/Users/jstano/workspace/taps`.

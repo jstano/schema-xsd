@@ -60,10 +60,14 @@
                     </complexType>
                   </element>
                 </sequence>
+                <!-- Conditional rules XSD 1.0 cannot express; generators and linters should enforce them:
+                     type="enum" requires enumType (naming an enum), type="array" requires elementType,
+                     type="decimal" requires length (precision) and may set scale (scale <= length), and
+                     char/varchar/binary take length. enumType and elementType are meaningless on other types. -->
                 <attribute name="name" type="string" use="required"/>
                 <attribute name="type" type="database:columnEnum" use="required"/>
-                <attribute name="length" type="integer"/>
-                <attribute name="scale" type="integer"/>
+                <attribute name="length" type="nonNegativeInteger"/>
+                <attribute name="scale" type="nonNegativeInteger"/>
                 <attribute name="required" type="boolean"/>
                 <attribute name="default" type="string"/>
                 <attribute name="generated" type="string"/>
