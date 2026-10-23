@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database" foreignKeyMode="relations" booleanMode="native" caseSensitiveText="false">
+  <enum name="Status">
+    <value name="Active" code="A"/>
+    <value name="Inactive" code="I"/>
+  </enum>
+  <table name="Parent" data="true" lockEscalation="table">
+    <columns>
+      <column name="ID" type="sequence" required="true"/>
+      <column name="Code" type="varchar" length="20" required="true"/>
+      <column name="Amount" type="decimal" length="10" scale="2" minValue="0" maxValue="99999.99">
+        <check>Amount &gt;= 0</check>
+        <check databaseType="postgresql">Amount &gt;= 0::numeric</check>
+      </column>
+      <column name="Status" type="enum" enumType="Status"/>
+      <column name="Tags" type="array" elementType="varchar"/>
+    </columns>
+    <keys>
+      <primary cluster="true"><column name="ID"/></primary>
+      <unique where="Code IS NOT NULL"><column name="Code"/></unique>
+      <index include="Amount" compress="true" unique="false"><column name="Code"/><column name="Status"/></index>
+    </keys>
+    <constraints>
+      <constraint name="CK_Parent" databaseType="h2">Amount &lt; 100000</constraint>
+    </constraints>
+    <triggers>
+      <update databaseType="sqlite">SELECT 1;</update>
+      <delete databaseType="sqlserver">SELECT 1;</delete>
+    </triggers>
+    <initialData>
+      <sql>INSERT INTO Parent (Code) VALUES ('X');</sql>
+    </initialData>
+  </table>
+  <table name="Child">
+    <columns>
+      <column name="ID" type="sequence" required="true"/>
+      <column name="ParentID" type="int" required="true"/>
+      <column name="Code" type="varchar" length="20"/>
+    </columns>
+    <keys>
+      <primary><column name="ID"/></primary>
+    </keys>
+    <relations>
+      <relation src="ParentID" table="Parent" column="ID" type="cascade"/>
+      <compositeRelation table="Parent" type="enforce">
+        <column src="ParentID" name="ID"/>
+        <column src="Code" name="Code"/>
+      </compositeRelation>
+    </relations>
+    <aggregations>
+      <aggregate destinationTable="ChildDaily" dateColumn="Day" timestampColumn="Stamp" frequency="daily">
+        <sum sourceColumn="ParentID" destinationColumn="Total"/>
+        <count destinationColumn="Cnt"/>
+        <group><column source="ParentID" destination="ParentID"/></group>
+      </aggregate>
+    </aggregations>
+  </table>
+  <view name="ParentView" databaseType="postgresql">SELECT * FROM Parent</view>
+  <function name="fn"><sql databaseType="postgresql">SELECT 1</sql></function>
+  <procedure name="pr"><sql databaseType="sqlserver">SELECT 1</sql></procedure>
+  <otherSql databaseType="h2" order="bottom">SELECT 1;</otherSql>
+  <schema name="reporting">
+    <table name="Report">
+      <columns><column name="ID" type="uuid"/></columns>
+    </table>
+    <enum name="Kind"><value name="A"/></enum>
+  </schema>
+</database>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database">
+  <table name="Audit">
+    <columns>
+      <column name="Message" type="text"/>
+    </columns>
+    <keys>
+      <index><column name="Message"/></index>
+    </keys>
+  </table>
+</database>

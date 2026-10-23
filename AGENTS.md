@@ -26,7 +26,7 @@ There is no application logic here. All real work is editing the XSD file.
 ### Rust
 ```bash
 cargo build          # compile
-cargo test           # run tests
+cargo test           # validate tests/fixtures against schema.xsd (needs xmllint)
 cargo publish        # publish to crates.io
 ```
 
@@ -36,6 +36,10 @@ cargo publish        # publish to crates.io
 ./gradlew publishToMavenLocal   # install to ~/.m2
 ./gradlew publishToMavenCentral # publish to Maven Central
 ```
+
+## Testing
+
+`tests/validate.rs` runs `xmllint --schema schema.xsd` over every document in `tests/fixtures/valid` (must validate) and `tests/fixtures/invalid` (must be rejected). When you add or change a schema rule, add a fixture to the matching directory.
 
 ## Making Changes
 

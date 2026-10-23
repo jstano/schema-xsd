@@ -4,7 +4,7 @@
         xmlns:database="http://stano.com/database"
         elementFormDefault="qualified"
         attributeFormDefault="unqualified"
-        version="1.0">
+        version="1.2.0">
   <element name="database">
     <complexType>
       <sequence>
@@ -46,7 +46,19 @@
             <element name="column" minOccurs="1" maxOccurs="unbounded">
               <complexType>
                 <sequence>
-                  <element name="check" minOccurs="0" maxOccurs="1"/>
+                  <!-- A check without databaseType is the generic fallback, used for any database that has
+                       no check of its own. A check with databaseType applies to that database only and
+                       takes precedence over the generic one. Declare at most one check per databaseType
+                       and at most one generic check. -->
+                  <element name="check" minOccurs="0" maxOccurs="unbounded">
+                    <complexType>
+                      <simpleContent>
+                        <extension base="string">
+                          <attribute name="databaseType" type="database:databaseTypeEnum"/>
+                        </extension>
+                      </simpleContent>
+                    </complexType>
+                  </element>
                 </sequence>
                 <attribute name="name" type="string" use="required"/>
                 <attribute name="type" type="database:columnEnum" use="required"/>
@@ -60,6 +72,12 @@
                 <attribute name="minValue" type="double"/>
                 <attribute name="maxValue" type="double"/>
               </complexType>
+              <!-- XSD 1.0 skips elements with no databaseType, so this only stops duplicate
+                   database-specific checks; a second generic check is not caught. -->
+              <unique name="uniqueColumnCheckDatabaseType">
+                <selector xpath="database:check"/>
+                <field xpath="@databaseType"/>
+              </unique>
             </element>
           </sequence>
         </complexType>
@@ -68,12 +86,12 @@
       <element name="keys" minOccurs="0" maxOccurs="1">
         <complexType>
           <sequence>
-            <element name="primary" minOccurs="1" maxOccurs="1">
+            <element name="primary" minOccurs="0" maxOccurs="1">
               <complexType>
                 <sequence minOccurs="1" maxOccurs="unbounded">
                   <element name="column">
                     <complexType>
-                      <attribute name="name"/>
+                      <attribute name="name" type="string" use="required"/>
                     </complexType>
                   </element>
                 </sequence>
@@ -86,7 +104,7 @@
                 <sequence minOccurs="1" maxOccurs="unbounded">
                   <element name="column">
                     <complexType>
-                      <attribute name="name"/>
+                      <attribute name="name" type="string" use="required"/>
                     </complexType>
                   </element>
                 </sequence>
@@ -100,7 +118,7 @@
                 <sequence minOccurs="1" maxOccurs="unbounded">
                   <element name="column">
                     <complexType>
-                      <attribute name="name"/>
+                      <attribute name="name" type="string" use="required"/>
                     </complexType>
                   </element>
                 </sequence>

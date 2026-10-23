@@ -13,9 +13,13 @@
 ## Findings (by priority)
 
 ### Correctness / validation gaps
-- [ ] 1. **Key `<column name>` is untyped and optional** (lines 77, 90, 104). An empty `<column/>` validates. Make it `type="string" use="required"`.
-- [ ] 2. **Column `<check>` has no type** (line 50). It is `anyType`, so any child content or attributes pass. It also cannot carry `databaseType`, unlike constraints and triggers. Give it a `vendorSql`-style simple type.
-- [ ] 3. **`keys` forces a `primary`** (line 72, minOccurs=1). A table with only indexes or uniques must still declare a primary key. Check that this is intended.
+- [x] 1. **Key `<column name>` is untyped and optional** (lines 77, 90, 104). An empty `<column/>` validates. Make it `type="string" use="required"`.
+- [x] 2. **Column `<check>` has no type** (line 50). It is `anyType`, so any child content or attributes pass. It also cannot carry `databaseType`, unlike constraints and triggers. Give it a `vendorSql`-style simple type.
+  - Done in the XSD: `<check>` is now string content with an optional `databaseType`, like `<constraint>`. It can repeat: a check without `databaseType` is the generic fallback, and a check with `databaseType` applies to that database and takes precedence. An `xs:unique` rejects duplicate checks for the same `databaseType`. XSD 1.0 cannot reject a second generic check, so that rule is documented only.
+  - Downstream status: the Java parser (`TableColumnContentHandler`) and Rust parser (`CheckXml`, `roxml_parser.rs`) read only the text and ignore attributes. A `databaseType` on `<check>` validates but is silently applied to every database. Per-database checks would need model, parser and SQL generator changes in both `schema-java` and `schema-rs`.
+- [x] 3. **`keys` forces a `primary`** (line 72, minOccurs=1). A table with only indexes or uniques must still declare a primary key. Check that this is intended.
+  - Done in the XSD: `primary` is now `minOccurs="0"`, so a table can declare only unique or index keys. Documents that validated before still validate. Requiring a primary key is a policy for a linter or generator, not the schema.
+  - TODO downstream: `schema-java` and `schema-rs` have not been updated. Check that their parsers, models and SQL generators tolerate a table with no primary key (no NPE/panic on a missing `primary`). Also note that `cluster` lives on `primary`, so keyless tables cannot be clustered.
 - [ ] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
 - [ ] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
 - [ ] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
@@ -24,7 +28,7 @@
 
 ### Dead / stale definitions
 - [ ] 9. **Unused types**: `policySqlType`, `aggregationTypeEnum` (includes `average`, which no element supports) and `verifyTypeEnum`. Remove them, or wire them in if they are planned.
-- [ ] 10. `version="1.0"` on the schema element is out of step with the published 1.2.0.
+- [x] 10. `version="1.0"` on the schema element is out of step with the published 1.2.0.
 
 ### Consistency / design
 - [ ] 11. **Relation naming is inconsistent.** `relation` uses `src`, `table`, `column`. `compositeRelation/column` uses `src`, `name`. Aggregation uses `sourceColumn`/`destinationColumn` on `sum` but `source`/`destination` on `group/column`.

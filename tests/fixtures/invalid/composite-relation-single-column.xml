@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database">
+  <table name="T">
+    <columns><column name="ID" type="int"/></columns>
+    <relations><compositeRelation table="T" type="enforce"><column src="ID" name="ID"/></compositeRelation></relations>
+  </table>
+</database>

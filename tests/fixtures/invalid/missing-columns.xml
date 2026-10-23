@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database">
+  <table name="T">
+    <keys><primary><column name="ID"/></primary></keys>
+  </table>
+</database>
