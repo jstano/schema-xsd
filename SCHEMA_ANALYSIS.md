@@ -1,0 +1,52 @@
+# schema.xsd analysis
+
+## Context
+`schema.xsd` (420 lines, namespace `http://stano.com/database`, XSD 1.0) defines a database-structure format. The root `<database>` holds tables, enums, views, functions, procedures, `otherSql`, and `<schema>` groupings. It is shipped via a Rust crate and a Maven JAR (both 1.2.0). This is a review with prioritized findings. Tick the boxes as items are fixed.
+
+## Structure
+- `database` attrs: `foreignKeyMode` (relations|triggers), `booleanMode` (native|yes_no|yn), `caseSensitiveText`.
+- Children: `table`, `enum`, `view`, `function`, `procedure`, `otherSql`, `schema` (a flat, non-nested namespace).
+- `tableType` is an `xs:all` of optional sections: `columns` (required), `keys` (primary/unique/index), `relations` (relation/compositeRelation), `triggers` (update/delete), `constraints`, `aggregations` (sum/count with group), `initialData`.
+- Vendor-specific SQL is carried by the `databaseType` attribute (h2|postgresql|sqlite|sqlserver). It is required on function/procedure/otherSql/trigger and optional on view/constraint/initialData.
+- 25 column types in `columnEnum`. `enum` needs `enumType`, and `array` needs `elementType`.
+
+## Findings (by priority)
+
+### Correctness / validation gaps
+- [ ] 1. **Key `<column name>` is untyped and optional** (lines 77, 90, 104). An empty `<column/>` validates. Make it `type="string" use="required"`.
+- [ ] 2. **Column `<check>` has no type** (line 50). It is `anyType`, so any child content or attributes pass. It also cannot carry `databaseType`, unlike constraints and triggers. Give it a `vendorSql`-style simple type.
+- [ ] 3. **`keys` forces a `primary`** (line 72, minOccurs=1). A table with only indexes or uniques must still declare a primary key. Check that this is intended.
+- [ ] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
+- [ ] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
+- [ ] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
+- [ ] 7. **Redundant nested repeats**: `columns > sequence(1..*) > column(1..*)` and the same for key columns. The extra wrapper adds nothing. Remove the outer `sequence` repeat.
+- [ ] 8. **`minValue`/`maxValue` are `double`**, which loses precision for long and decimal columns. Consider `decimal`.
+
+### Dead / stale definitions
+- [ ] 9. **Unused types**: `policySqlType`, `aggregationTypeEnum` (includes `average`, which no element supports) and `verifyTypeEnum`. Remove them, or wire them in if they are planned.
+- [ ] 10. `version="1.0"` on the schema element is out of step with the published 1.2.0.
+
+### Consistency / design
+- [ ] 11. **Relation naming is inconsistent.** `relation` uses `src`, `table`, `column`. `compositeRelation/column` uses `src`, `name`. Aggregation uses `sourceColumn`/`destinationColumn` on `sum` but `source`/`destination` on `group/column`.
+- [ ] 12. **`databaseType` optionality varies.** It is required on trigger, function and otherSql, and optional on view, constraint and initialData. The meaning of "absent = all databases" is undocumented.
+- [ ] 13. **Vendor-neutral SQL fragments cannot vary per database.** These are `column@default`, `@generated`, `check`, `index@where`/`@include`, unique `@where`, and aggregate `@criteria`. `index@include` is a comma-separated string, not a list of column elements.
+- [x] 14. **Empty-string defaults** (`where=""`, `include=""`) are meaningless. Drop them.
+- [x] 15. **The `schema` child duplicates the 6-way choice** from `database` (lines 11-34). Factor it into a named `xs:group`.
+- [ ] 16. **Relation actions are underspecified.** `relationTypeEnum` (cascade|enforce|setnull|donothing) has no `onUpdate`. The difference between `enforce` and `donothing` is undocumented.
+- [ ] 17. **Only one comment in the whole file.** Add `xs:annotation/xs:documentation` for the non-obvious attributes: `data`, `noExport`, `exportDataColumn`, `lockEscalation`, `disableUsageChecking`, `generated`, and the `sequence`/`longsequence`/`cstext` types.
+- [ ] 18. **Triggers**: only `update` and `delete` are allowed, with no `insert` and no name. The `minOccurs`/`maxOccurs` inside the unbounded `choice` is redundant.
+
+### Docs drift (AGENTS.md vs schema)
+- [ ] AGENTS.md says elements are `kebab-case`, but they are camelCase (`otherSql`, `initialData`, `compositeRelation`).
+- [ ] AGENTS.md says DB variants are "separate optional child elements, not attributes", but the schema uses a `databaseType` attribute everywhere.
+- [ ] Update AGENTS.md to match, or the schema to match AGENTS.md.
+
+## Suggested order if you want changes made
+- [ ] 1. Safe tightenings (1, 2, 7, 9, 14, 15). These are mostly non-breaking, though 1 and 2 reject some currently-valid documents.
+- [ ] 2. Decide on the content-model questions (3, 6, 12, 16), which are breaking and need your intent.
+- [ ] 3. Add identity constraints (5) and documentation (17).
+- [ ] 4. Fix the AGENTS.md drift and bump the version in `gradle.properties` and `Cargo.toml` if the schema changes.
+
+## Verification (when implementing)
+- `xmllint --noout --schema schema.xsd <sample.xml>` against the downstream sample documents, for example in `/Users/jstano/workspace/taps`.
+- `cargo build && cargo test`, and `./gradlew build`.
