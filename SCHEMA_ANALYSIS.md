@@ -23,7 +23,7 @@
 - [ ] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
 - [ ] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
 - [ ] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
-- [ ] 7. **Redundant nested repeats**: `columns > sequence(1..*) > column(1..*)` and the same for key columns. The extra wrapper adds nothing. Remove the outer `sequence` repeat.
+- [x] 7. **Redundant nested repeats**: `columns > sequence(1..*) > column(1..*)` and the same for key columns. The extra wrapper adds nothing. Remove the outer `sequence` repeat.
 - [x] 8. **`minValue`/`maxValue` are `double`**, which loses precision for long and decimal columns. Consider `decimal`.
 
 ### Dead / stale definitions
