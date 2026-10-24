@@ -51,6 +51,6 @@ cargo publish        # publish to crates.io
 
 ## Conventions
 
-- The XSD files use `lowerCamelCase` for attribute names and `kebab-case` for element names.
-- Database-type-specific variants (H2, PostgreSQL, SQLite, SQL Server) are represented as separate optional child elements, not as attributes.
+- The XSD uses `lowerCamelCase` for both element names (`otherSql`, `initialData`, `compositeRelation`) and attribute names.
+- Database-type-specific variants (H2, PostgreSQL, SQLite, SQL Server) are expressed with the `databaseType` attribute on repeatable elements (one element per database), not as separate child elements. Absent `databaseType` means the SQL applies to all databases.
 - Do not add runtime logic to `src/lib.rs` — it intentionally exposes only the raw XSD strings. Validation, parsing, and code generation belong in downstream crates/libraries.

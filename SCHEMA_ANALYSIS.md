@@ -35,7 +35,8 @@
 - [x] 10. `version="1.0"` on the schema element is out of step with the published 1.2.0.
 
 ### Consistency / design
-- [ ] 11. **Relation naming is inconsistent.** `relation` uses `src`, `table`, `column`. `compositeRelation/column` uses `src`, `name`. Aggregation uses `sourceColumn`/`destinationColumn` on `sum` but `source`/`destination` on `group/column`.
+- [x] 11. **Relation naming is inconsistent.** `relation` uses `src`, `table`, `column`. `compositeRelation/column` uses `src`, `name`. Aggregation uses `sourceColumn`/`destinationColumn` on `sum` but `source`/`destination` on `group/column`.
+  - Skipped: renaming would break existing schema files and need parser changes in `schema-java` and `schema-rs`. XSD 1.0 cannot express "one of two attribute names", so keeping the old names as aliases would drop the `required` checks. Revisit only at a major version bump.
 - [x] 12. **`databaseType` optionality varies.** It is required on trigger, function, procedure and otherSql, and optional on view, constraint and initialData.
   - Intended, not a defect: views, constraints and initial data can generally be written generic, while triggers, functions, procedures and otherSql are inherently vendor-specific. Absent `databaseType` means the SQL applies to all databases. Documented in a comment above `databaseTypeEnum` in the XSD.
 - [ ] 13. **Vendor-neutral SQL fragments cannot vary per database.** These are `column@default`, `@generated`, `check`, `index@where`/`@include`, unique `@where`, and aggregate `@criteria`. `index@include` is a comma-separated string, not a list of column elements.
@@ -45,19 +46,15 @@
   - Accepted as is: the single action applies to ON DELETE, and ON UPDATE is almost always the same, so a separate `onUpdate` is not needed for now.
 - [x] 17. **Only one comment in the whole file.** Add documentation for the non-obvious attributes: `data`, `noExport`, `exportDataColumn`, `lockEscalation`, `disableUsageChecking`, `generated`, and the `sequence`/`longsequence`/`cstext` types.
   - Done in the XSD as `xs:annotation/xs:documentation` on the table attributes, column attributes, `disableUsageChecking`, and the `columnEnum`, `relationTypeEnum` and `databaseTypeEnum` types (with per-value docs for the sequence, citext/cstext and relation values). Comments remain only for rules that span several components: the column conditional rules, the `check` fallback and the `unique` limitation. `data` is described from its name only (no downstream code explains it), so confirm the wording. `exportDataColumn` is described as the export/change-date column, as `schema-java` names it `exportDateColumn`.
-- [ ] 18. **Triggers**: only `update` and `delete` are allowed, with no `insert` and no name. The `minOccurs`/`maxOccurs` inside the unbounded `choice` is redundant.
+- [x] 18. **Triggers**: only `update` and `delete` are allowed, with no `insert` and no name. The `minOccurs`/`maxOccurs` inside the unbounded `choice` is redundant.
+  - Done in the XSD: the redundant `minOccurs`/`maxOccurs` on `update` and `delete` are removed; validation is unchanged.
+  - Skipped `insert` and `name`: both `schema-java` (`TriggerType` enum, `TriggerContentHandler`) and `schema-rs` (`TriggersXml` has only `update`/`delete` vecs, `TriggerType`) model exactly update/delete and an unnamed trigger, and the generators derive trigger names. Adding either would need model, parser, generator and diff changes in both repos, so revisit with a major version bump. Note `schema-rs` keeps update and delete in separate lists, so their interleaved document order is not preserved.
+  - `insert` is not needed: the PostgreSQL (`after insert or update`) and SQL Server (`for insert,update`) generators already fire the `update` trigger on inserts. Documented on the `update` element in the XSD.
 
 ### Docs drift (AGENTS.md vs schema)
-- [ ] AGENTS.md says elements are `kebab-case`, but they are camelCase (`otherSql`, `initialData`, `compositeRelation`).
-- [ ] AGENTS.md says DB variants are "separate optional child elements, not attributes", but the schema uses a `databaseType` attribute everywhere.
-- [ ] Update AGENTS.md to match, or the schema to match AGENTS.md.
-
-## Suggested order if you want changes made
-- [ ] 1. Safe tightenings (1, 2, 7, 9, 14, 15). These are mostly non-breaking, though 1 and 2 reject some currently-valid documents.
-- [ ] 2. Decide on the content-model questions (3, 6, 12, 16), which are breaking and need your intent.
-- [ ] 3. Add identity constraints (5) and documentation (17).
-- [x] 4. Fix the AGENTS.md drift and bump the version in `gradle.properties` and `Cargo.toml` if the schema changes.
-  - Done in the XSD: `length`/`scale` are now `nonNegativeInteger`. XSD 1.0 cannot express the conditional rules (enum needs `enumType`, array needs `elementType`, decimal needs `length`), so they are documented in a comment above the column attributes. Enforcing them would need XSD 1.1 `xs:assert`, which xmllint does not support.
+- [x] AGENTS.md says elements are `kebab-case`, but they are camelCase (`otherSql`, `initialData`, `compositeRelation`).
+- [x] AGENTS.md says DB variants are "separate optional child elements, not attributes", but the schema uses a `databaseType` attribute everywhere.
+- [x] Update AGENTS.md to match, or the schema to match AGENTS.md.
 
 ## Verification (when implementing)
 - `xmllint --noout --schema schema.xsd <sample.xml>` against the downstream sample documents, for example in `/Users/jstano/workspace/taps`.

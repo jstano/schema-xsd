@@ -202,8 +202,16 @@
         <complexType>
           <sequence>
             <choice minOccurs="0" maxOccurs="unbounded">
-              <element name="update" type="database:triggerType" minOccurs="0" maxOccurs="unbounded"/>
-              <element name="delete" type="database:triggerType" minOccurs="0" maxOccurs="unbounded"/>
+              <element name="update" type="database:triggerType">
+                <annotation>
+                  <documentation>SQL appended to the generated insert-or-update trigger body for this table, so it also runs on INSERT. PostgreSQL: use TG_OP to tell them apart. SQL Server: the Inserted/Deleted pseudo-tables cover both.</documentation>
+                </annotation>
+              </element>
+              <element name="delete" type="database:triggerType">
+                <annotation>
+                  <documentation>SQL appended to the generated delete trigger body for this table.</documentation>
+                </annotation>
+              </element>
             </choice>
           </sequence>
         </complexType>
