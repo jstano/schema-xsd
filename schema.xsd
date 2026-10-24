@@ -203,7 +203,7 @@
           <sequence minOccurs="1" maxOccurs="unbounded">
             <element name="aggregate">
               <complexType>
-                <sequence minOccurs="1" maxOccurs="unbounded">
+                <sequence>
                   <choice minOccurs="1" maxOccurs="unbounded">
                     <element name="sum">
                       <complexType>
@@ -323,14 +323,6 @@
     </simpleContent>
   </complexType>
 
-  <complexType name="policySqlType">
-    <simpleContent>
-      <extension base="string">
-        <attribute name="databaseType" type="database:databaseTypeEnum" use="required"/>
-      </extension>
-    </simpleContent>
-  </complexType>
-
   <complexType name="enumType">
     <sequence>
       <element name="value" minOccurs="1" maxOccurs="unbounded">
@@ -382,14 +374,6 @@
     </restriction>
   </simpleType>
 
-  <simpleType name="aggregationTypeEnum">
-    <restriction base="string">
-      <enumeration value="sum"/>
-      <enumeration value="average"/>
-      <enumeration value="count"/>
-    </restriction>
-  </simpleType>
-
   <!-- What happens to child rows when the referenced (parent) row is deleted, i.e. the ON DELETE
        action. There is no ON UPDATE action. Applies to relation and compositeRelation, in both
        foreignKeyMode="relations" (FOREIGN KEY constraint) and "triggers" (generated triggers).
@@ -424,14 +408,6 @@
       <enumeration value="table"/>
       <enumeration value="auto"/>
       <enumeration value="disable"/>
-    </restriction>
-  </simpleType>
-
-  <simpleType name="verifyTypeEnum">
-    <restriction base="string">
-      <enumeration value="date"/>
-      <enumeration value="sum"/>
-      <enumeration value="group_by"/>
     </restriction>
   </simpleType>
 

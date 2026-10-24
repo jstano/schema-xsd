@@ -22,13 +22,16 @@
   - TODO downstream: `schema-java` and `schema-rs` have not been updated. Check that their parsers, models and SQL generators tolerate a table with no primary key (no NPE/panic on a missing `primary`). Also note that `cluster` lives on `primary`, so keyless tables cannot be clustered.
 - [x] 4. **Conditional rules are not enforced.** `type="enum"` needs `enumType`, `array` needs `elementType`, and `decimal` needs `length`/`scale`. `length`/`scale` should be `nonNegativeInteger`, not `integer`. Options are XSD 1.1 `xs:assert` or documenting the rules.
   - Done in the XSD: `length`/`scale` are now `nonNegativeInteger`. XSD 1.0 cannot express the conditional rules (enum needs `enumType`, array needs `elementType`, decimal needs `length`), so they are documented in a comment above the column attributes. Enforcing them would need XSD 1.1 `xs:assert`, which xmllint does not support.
-- [ ] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
-- [ ] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
+- [x] 5. **No identity constraints.** Nothing enforces unique table, column, enum or schema names. Nothing checks that `relation@table` or `@enumType` references exist. Add `xs:unique`/`xs:key`/`xs:keyref` where feasible. Cross-schema references are the hard part.
+  - Skipped: the downstream tools already enforce name uniqueness and reference checks. XSD 1.0 could cover uniqueness and same-scope keyrefs, but not cross-schema or column-level references.
+- [x] 6. **`aggregate` content model is probably wrong** (lines 185-213). The outer `sequence maxOccurs=unbounded` repeats `(sum|count)+ , group`, which allows several `group`s. Probably intended: `(sum|count)+` then exactly one `group`.
+  - Done in the XSD: `aggregate` is now `(sum|count)+` followed by exactly one `group`. `sum` and `count` may still be interleaved. Fixtures cover multiple groups, a repeated block and a missing group. The downstream sample documents that use `<aggregate>` still validate. `schema-java` merged several groups into one list, and `schema-rs` takes a single `group`, so neither needs a change for the tightening.
 - [x] 7. **Redundant nested repeats**: `columns > sequence(1..*) > column(1..*)` and the same for key columns. The extra wrapper adds nothing. Remove the outer `sequence` repeat.
 - [x] 8. **`minValue`/`maxValue` are `double`**, which loses precision for long and decimal columns. Consider `decimal`.
 
 ### Dead / stale definitions
-- [ ] 9. **Unused types**: `policySqlType`, `aggregationTypeEnum` (includes `average`, which no element supports) and `verifyTypeEnum`. Remove them, or wire them in if they are planned.
+- [x] 9. **Unused types**: `policySqlType`, `aggregationTypeEnum` (includes `average`, which no element supports) and `verifyTypeEnum`. Remove them, or wire them in if they are planned.
+  - Done in the XSD: all three removed. Neither `schema-java` nor `schema-rs` reads them; the aggregate element names (`sum`, `count`, `group`) and `dateColumn` already carry that information. `schema-java` still has an unused `VerifyType` enum and `VerifyTypeTest` that could be cleaned up separately.
 - [x] 10. `version="1.0"` on the schema element is out of step with the published 1.2.0.
 
 ### Consistency / design

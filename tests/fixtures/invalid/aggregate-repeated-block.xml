@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://stano.com/database">
+  <table name="T">
+    <columns><column name="ID" type="int"/></columns>
+    <aggregations>
+      <aggregate destinationTable="D" dateColumn="Day" timestampColumn="Stamp" frequency="daily">
+        <count destinationColumn="Cnt"/>
+        <group><column source="ID" destination="ID"/></group>
+        <count destinationColumn="Cnt2"/>
+        <group><column source="ID" destination="ID"/></group>
+      </aggregate>
+    </aggregations>
+  </table>
+</database>
