@@ -68,13 +68,33 @@
                 <attribute name="type" type="database:columnEnum" use="required"/>
                 <attribute name="length" type="nonNegativeInteger"/>
                 <attribute name="scale" type="nonNegativeInteger"/>
-                <attribute name="required" type="boolean"/>
-                <attribute name="default" type="string"/>
-                <attribute name="generated" type="string"/>
+                <attribute name="required" type="boolean">
+                  <annotation>
+                    <documentation>True means NOT NULL.</documentation>
+                  </annotation>
+                </attribute>
+                <attribute name="default" type="string">
+                  <annotation>
+                    <documentation>A SQL expression copied verbatim into DEFAULT.</documentation>
+                  </annotation>
+                </attribute>
+                <attribute name="generated" type="string">
+                  <annotation>
+                    <documentation>A SQL expression for a computed (generated) column.</documentation>
+                  </annotation>
+                </attribute>
                 <attribute name="enumType" type="string"/>
                 <attribute name="elementType" type="database:columnEnum"/>
-                <attribute name="minValue" type="decimal"/>
-                <attribute name="maxValue" type="decimal"/>
+                <attribute name="minValue" type="decimal">
+                  <annotation>
+                    <documentation>Minimum allowed value, enforced through a generated CHECK constraint.</documentation>
+                  </annotation>
+                </attribute>
+                <attribute name="maxValue" type="decimal">
+                  <annotation>
+                    <documentation>Maximum allowed value, enforced through a generated CHECK constraint.</documentation>
+                  </annotation>
+                </attribute>
               </complexType>
               <!-- XSD 1.0 skips elements with no databaseType, so this only stops duplicate
                    database-specific checks; a second generic check is not caught. -->
@@ -145,7 +165,11 @@
                 <attribute name="table" type="string" use="required"/>
                 <attribute name="column" type="string" use="required"/>
                 <attribute name="type" type="database:relationTypeEnum" use="required"/>
-                <attribute name="disableUsageChecking" type="boolean"/>
+                <attribute name="disableUsageChecking" type="boolean">
+                  <annotation>
+                    <documentation>Metadata for model consumers: an application-level "where is this row used?" check skips the relation. No DDL or migration reads it.</documentation>
+                  </annotation>
+                </attribute>
               </complexType>
             </element>
 
@@ -163,7 +187,11 @@
                 </sequence>
                 <attribute name="table" type="string" use="required"/>
                 <attribute name="type" type="database:relationTypeEnum" use="required"/>
-                <attribute name="disableUsageChecking" type="boolean"/>
+                <attribute name="disableUsageChecking" type="boolean">
+                  <annotation>
+                    <documentation>Metadata for model consumers: an application-level "where is this row used?" check skips the relation. No DDL or migration reads it.</documentation>
+                  </annotation>
+                </attribute>
               </complexType>
             </element>
           </choice>
@@ -261,11 +289,31 @@
     </all>
 
     <attribute name="name" type="string" use="required"/>
-    <attribute name="data" type="boolean"/>
-    <attribute name="noExport" type="boolean"/>
-    <attribute name="exportDataColumn" type="string"/>
-    <attribute name="compress" type="boolean" default="false"/>
-    <attribute name="lockEscalation" type="database:lockEscalationEnum" default="auto"/>
+    <attribute name="data" type="boolean">
+      <annotation>
+        <documentation>Marks a table whose rows are data rather than structure (reference data, see initialData).</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="noExport" type="boolean">
+      <annotation>
+        <documentation>Excludes the table from data export.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="exportDataColumn" type="string">
+      <annotation>
+        <documentation>The column used to track export/change dates (date-based export).</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="compress" type="boolean" default="false">
+      <annotation>
+        <documentation>Creates the table compressed, on databases that support it.</documentation>
+      </annotation>
+    </attribute>
+    <attribute name="lockEscalation" type="database:lockEscalationEnum" default="auto">
+      <annotation>
+        <documentation>Row-lock escalation, honored by SQL Server only (LOCK_ESCALATION): table escalates to a table lock, auto lets the engine choose, disable never escalates.</documentation>
+      </annotation>
+    </attribute>
   </complexType>
 
   <complexType name="viewType">
@@ -335,10 +383,21 @@
     <attribute name="name" type="string" use="required"/>
   </complexType>
 
-  <simpleType name="columnEnum">
+<simpleType name="columnEnum">
+    <annotation>
+      <documentation>Column data types. Each maps to the closest native type of the target database.</documentation>
+    </annotation>
     <restriction base="string">
-      <enumeration value="sequence"/>
-      <enumeration value="longsequence"/>
+      <enumeration value="sequence">
+        <annotation>
+          <documentation>Auto-incrementing integer column (serial, identity). A table may have at most one sequence or longsequence column.</documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="longsequence">
+        <annotation>
+          <documentation>Auto-incrementing bigint column (bigserial, identity). A table may have at most one sequence or longsequence column.</documentation>
+        </annotation>
+      </enumeration>
       <enumeration value="byte"/>
       <enumeration value="short"/>
       <enumeration value="int"/>
@@ -356,8 +415,16 @@
       <enumeration value="varchar"/>
       <enumeration value="enum"/>
       <enumeration value="text"/>
-      <enumeration value="citext"/>
-      <enumeration value="cstext"/>
+      <enumeration value="citext">
+        <annotation>
+          <documentation>Case-insensitive text. Maps to plain text where the database has no dedicated type.</documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="cstext">
+        <annotation>
+          <documentation>Case-sensitive text. Maps to plain text where the database has no dedicated type.</documentation>
+        </annotation>
+      </enumeration>
       <enumeration value="binary"/>
       <enumeration value="uuid"/>
       <enumeration value="json"/>
@@ -374,27 +441,38 @@
     </restriction>
   </simpleType>
 
-  <!-- What happens to child rows when the referenced (parent) row is deleted, i.e. the ON DELETE
-       action. There is no ON UPDATE action. Applies to relation and compositeRelation, in both
-       foreignKeyMode="relations" (FOREIGN KEY constraint) and "triggers" (generated triggers).
-         cascade   - delete the child rows (ON DELETE CASCADE).
-         enforce   - reject the delete while child rows exist, and require inserted/updated child
-                     values to exist in the parent. FK constraint with the default action.
-         setnull   - set the child columns to null (ON DELETE SET NULL). Invalid if the child
-                     column is required.
-         donothing - no integrity enforcement: no FOREIGN KEY constraint and no triggers. The
-                     relation only documents the link (e.g. for diagrams).
-       SET DEFAULT is not supported. -->
-  <simpleType name="relationTypeEnum">
+<simpleType name="relationTypeEnum">
+    <annotation>
+      <documentation>What happens to child rows when the referenced (parent) row is deleted, i.e. the ON DELETE action. There is no ON UPDATE action. Applies to relation and compositeRelation, in both foreignKeyMode="relations" (FOREIGN KEY constraint) and "triggers" (generated triggers). SET DEFAULT is not supported.</documentation>
+    </annotation>
     <restriction base="string">
-      <enumeration value="cascade"/>
-      <enumeration value="enforce"/>
-      <enumeration value="setnull"/>
-      <enumeration value="donothing"/>
+      <enumeration value="cascade">
+        <annotation>
+          <documentation>Delete the child rows (ON DELETE CASCADE).</documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="enforce">
+        <annotation>
+          <documentation>Reject the delete while child rows exist, and require inserted/updated child values to exist in the parent. FK constraint with the default action.</documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="setnull">
+        <annotation>
+          <documentation>Set the child columns to null (ON DELETE SET NULL). Invalid if the child column is required.</documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="donothing">
+        <annotation>
+          <documentation>No integrity enforcement: no FOREIGN KEY constraint and no triggers. The relation only documents the link (e.g. for diagrams).</documentation>
+        </annotation>
+      </enumeration>
     </restriction>
   </simpleType>
 
-  <simpleType name="databaseTypeEnum">
+<simpleType name="databaseTypeEnum">
+    <annotation>
+      <documentation>Target database for vendor-specific SQL. On view, constraint and initialData sql the attribute is optional because that SQL is usually portable: no databaseType means it applies to every database. It is required on trigger, function, procedure and otherSql, whose SQL is inherently vendor-specific.</documentation>
+    </annotation>
     <restriction base="string">
       <enumeration value="h2"/>
       <enumeration value="postgresql"/>

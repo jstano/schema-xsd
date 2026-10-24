@@ -36,12 +36,15 @@
 
 ### Consistency / design
 - [ ] 11. **Relation naming is inconsistent.** `relation` uses `src`, `table`, `column`. `compositeRelation/column` uses `src`, `name`. Aggregation uses `sourceColumn`/`destinationColumn` on `sum` but `source`/`destination` on `group/column`.
-- [ ] 12. **`databaseType` optionality varies.** It is required on trigger, function and otherSql, and optional on view, constraint and initialData. The meaning of "absent = all databases" is undocumented.
+- [x] 12. **`databaseType` optionality varies.** It is required on trigger, function, procedure and otherSql, and optional on view, constraint and initialData.
+  - Intended, not a defect: views, constraints and initial data can generally be written generic, while triggers, functions, procedures and otherSql are inherently vendor-specific. Absent `databaseType` means the SQL applies to all databases. Documented in a comment above `databaseTypeEnum` in the XSD.
 - [ ] 13. **Vendor-neutral SQL fragments cannot vary per database.** These are `column@default`, `@generated`, `check`, `index@where`/`@include`, unique `@where`, and aggregate `@criteria`. `index@include` is a comma-separated string, not a list of column elements.
 - [x] 14. **Empty-string defaults** (`where=""`, `include=""`) are meaningless. Drop them.
 - [x] 15. **The `schema` child duplicates the 6-way choice** from `database` (lines 11-34). Factor it into a named `xs:group`.
-- [ ] 16. (documented in schema.xsd; no onUpdate or renames yet) **Relation actions are underspecified.** `relationTypeEnum` (cascade|enforce|setnull|donothing) has no `onUpdate`. The difference between `enforce` and `donothing` is undocumented.
-- [ ] 17. **Only one comment in the whole file.** Add `xs:annotation/xs:documentation` for the non-obvious attributes: `data`, `noExport`, `exportDataColumn`, `lockEscalation`, `disableUsageChecking`, `generated`, and the `sequence`/`longsequence`/`cstext` types.
+- [x] 16. **Relation actions are underspecified.** `relationTypeEnum` (cascade|enforce|setnull|donothing) has no `onUpdate`. The difference between `enforce` and `donothing` is documented in schema.xsd.
+  - Accepted as is: the single action applies to ON DELETE, and ON UPDATE is almost always the same, so a separate `onUpdate` is not needed for now.
+- [x] 17. **Only one comment in the whole file.** Add documentation for the non-obvious attributes: `data`, `noExport`, `exportDataColumn`, `lockEscalation`, `disableUsageChecking`, `generated`, and the `sequence`/`longsequence`/`cstext` types.
+  - Done in the XSD as `xs:annotation/xs:documentation` on the table attributes, column attributes, `disableUsageChecking`, and the `columnEnum`, `relationTypeEnum` and `databaseTypeEnum` types (with per-value docs for the sequence, citext/cstext and relation values). Comments remain only for rules that span several components: the column conditional rules, the `check` fallback and the `unique` limitation. `data` is described from its name only (no downstream code explains it), so confirm the wording. `exportDataColumn` is described as the export/change-date column, as `schema-java` names it `exportDateColumn`.
 - [ ] 18. **Triggers**: only `update` and `delete` are allowed, with no `insert` and no name. The `minOccurs`/`maxOccurs` inside the unbounded `choice` is redundant.
 
 ### Docs drift (AGENTS.md vs schema)
