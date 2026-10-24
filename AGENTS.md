@@ -19,7 +19,7 @@ There is no application logic here. All real work is editing the XSD file.
 | `src/lib.rs` | Rust crate entry point — only exposes the `SCHEMA_XSD` constant |
 | `build.gradle.kts` | Gradle build — packages the XSD into a JAR and configures Maven publishing |
 | `Cargo.toml` | Rust crate metadata |
-| `gradle.properties` | Maven group and version (`com.stano`, `1.2.0`) |
+| `gradle.properties` | Maven group and version (`com.stano`, `1.3.0`) |
 
 ## Build Commands
 
